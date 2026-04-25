@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOW & CARE | Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #db2777;
+    --primary-dark: #be185d;
+  }
+  * { scrollbar-width: thin; scrollbar-color: #db2777 #f1f5f9; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: #f1f5f9; }
+  *::-webkit-scrollbar-thumb { background-color: #db2777; border-radius: 20px; }
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-backdrop { backdrop-filter: blur(4px); }
+  .sidebar-link.active { background: linear-gradient(135deg, #db2777 0%, #be185d 100%); color: white; }
+  .sidebar-link.active i { color: white; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-slate-100 p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 border border-slate-100">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900">GLOW & CARE</h1>
+        <p class="text-slate-500 mt-1">Admin Dashboard</p>
+      </div>
+      <form id="loginForm" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Select Role</label>
+          <select id="roleSelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition">
+            <option value="Admin">Admin - Full Access</option>
+            <option value="Editor">Editor - Limited Access</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <input type="password" id="passwordInput" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Enter password">
+        </div>
+        <div id="loginError" class="hidden text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg"></div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-pink-200">
+          Sign In
+        </button>
+      </form>
+      <div class="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-500 text-center">
+        <p>Admin: admin123 | Editor: editor123</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard" class="hidden min-h-screen">
+  <aside id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white border-r border-slate-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-200">
+      <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center">
+        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <h2 class="font-bold text-slate-900">GLOW & CARE</h2>
+        <p class="text-xs text-slate-500">Admin Panel</p>
+      </div>
+    </div>
+    <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
+      <a href="#" data-tab="overview" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Overview</span>
+      </a>
+      <a href="#" data-tab="products" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="package" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Products</span>
+      </a>
+      <a href="#" data-tab="categories" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="folder-tree" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Categories</span>
+      </a>
+      <a href="#" data-tab="hero" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="image" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Hero Banner</span>
+      </a>
+      <a href="#" data-tab="coupons" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="ticket-percent" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Coupons</span>
+      </a>
+      <a href="#" data-tab="lowstock" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Low Stock</span>
+        <span id="lowStockBadge" class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span>
+      </a>
+      <a href="#" data-tab="sales" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="shopping-cart" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Sales Log</span>
+      </a>
+      <a href="#" data-tab="analytics" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Analytics</span>
+      </a>
+      <a href="#" data-tab="settings" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50 admin-only">
+        <i data-lucide="settings" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Site Settings</span>
+      </a>
+      <a href="#" data-tab="roles" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50">
+        <i data-lucide="shield-check" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">User Roles</span>
+      </a>
+      <a href="#" data-tab="backup" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition hover:bg-slate-50 admin-only">
+        <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
+        <span class="font-medium">Backup</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="lg:ml-64">
+    <header class="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-4">
+        <button id="menuBtn" class="lg:hidden p-2 hover:bg-slate-100 rounded-lg">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        <h1 id="pageTitle" class="text-xl font-bold text-slate-900">Overview</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <p class="text-sm font-medium text-slate-900" id="userRole">Admin</p>
+          <p class="text-xs text-slate-500">Logged in</p>
+        </div>
+        <button id="logoutBtn" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span class="hidden sm:inline text-sm font-medium">Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="p-4 lg:p-8">
+      <!-- Overview Tab -->
+      <div id="tab-overview" class="tab-content fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="package" class="w-6 h-6 text-blue-600"></i>
+              </div>
+            </div>
+            <p class="text-slate-500 text-sm mb-1">Total Products</p>
+            <p class="text-3xl font-bold text-slate-900" id="statProducts">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+              </div>
+            </div>
+            <p class="text-slate-500 text-sm mb-1">Low Stock Items</p>
+            <p class="text-3xl font-bold text-slate-900" id="statLowStock">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="message-circle" class="w-6 h-6 text-green-600"></i>
+              </div>
+            </div>
+            <p class="text-slate-500 text-sm mb-1">WhatsApp Clicks</p>
+            <p class="text-3xl font-bold text-slate-900" id="statWhatsapp">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="eye" class="w-6 h-6 text-purple-600"></i>
+              </div>
+            </div>
+            <p class="text-slate-500 text-sm mb-1">Total Visitors</p>
+            <p class="text-3xl font-bold text-slate-900" id="statVisitors">0</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Low Stock Alerts</h3>
+            <div id="lowStockList" class="space-y-3 max-h-80 overflow-y-auto"></div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Recent Sales</h3>
+            <div id="recentSalesList" class="space-y-3 max-h-80 overflow-y-auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div id="tab-products" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-900">Products Management</h2>
+            <button id="addProductBtn" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-pink-200 flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Product
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Image</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Name</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Category</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Price</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Stock</th>
+                  <th class="text-right px-6 py-4 text-sm font-semibold text-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTable" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Tab -->
+      <div id="tab-categories" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-900">Categories Management</h2>
+            <button id="addCategoryBtn" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-pink-200 flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Category
+            </button>
+          </div>
+          <div class="p-6">
+            <div id="categoriesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Banner Tab -->
+      <div id="tab-hero" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900">Hero Banner Editor</h2>
+          </div>
+          <form id="heroForm" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Hero Image URL</label>
+                <input type="url" id="heroImage" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="https://example.com/hero.jpg">
+                <img id="heroPreview" class="mt-3 w-full h-48 object-cover rounded-xl border border-slate-200 hidden" alt="Hero preview">
+              </div>
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                  <input type="text" id="heroTitle" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Welcome to GLOW & CARE">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                  <textarea id="heroSubtitle" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Your beauty, our passion"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Button Text</label>
+                    <input type="text" id="heroBtnText" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Shop Now">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Button Link</label>
+                    <input type="text" id="heroBtnLink" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="#products">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium px-6 py-3 rounded-xl transition shadow-lg shadow-pink-200">
+              Save Hero Banner
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Coupons Tab -->
+      <div id="tab-coupons" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-900">Coupon Codes</h2>
+            <button id="addCouponBtn" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-pink-200 flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Coupon
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Code</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Discount</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Usage / Limit</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Expiry</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Status</th>
+                  <th class="text-right px-6 py-4 text-sm font-semibold text-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="couponsTable" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Low Stock Tab -->
+      <div id="tab-lowstock" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900">Low Stock Alerts (Stock ≤ 5)</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Product</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Category</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Current Stock</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Price</th>
+                  <th class="text-right px-6 py-4 text-sm font-semibold text-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="lowStockTable" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Log Tab -->
+      <div id="tab-sales" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-900">Sales Log</h2>
+            <button id="exportSalesCsv" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-5 py-2.5 rounded-xl transition flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Export CSV
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Date</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Products</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Total</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Coupon</th>
+                  <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">Method</th>
+                </tr>
+              </thead>
+              <tbody id="salesTable" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Tab -->
+      <div id="tab-analytics" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <p class="text-slate-500 text-sm mb-2">Conversion Rate</p>
+            <p class="text-4xl font-bold text-slate-900 mb-1" id="conversionRate">0%</p>
+            <p class="text-xs text-slate-500">Orders / Visitors</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <p class="text-slate-500 text-sm mb-2">Total Revenue</p>
+            <p class="text-4xl font-bold text-slate-900 mb-1" id="totalRevenue">0 DZD</p>
+            <p class="text-xs text-slate-500">From WhatsApp orders</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <p class="text-slate-500 text-sm mb-2">Avg Order Value</p>
+            <p class="text-4xl font-bold text-slate-900 mb-1" id="avgOrderValue">0 DZD</p>
+            <p class="text-xs text-slate-500">Per order average</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Sales Last 7 Days</h3>
+            <canvas id="salesChart"></canvas>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Top Products</h3>
+            <div id="topProductsList" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="tab-settings" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900">Site Settings</h2>
+          </div>
+          <form id="settingsForm" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Logo URL</label>
+                <input type="url" id="siteLogo" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="https://example.com/logo.png">
+                <img id="logoPreview" class="mt-3 h-16 object-contain rounded-lg border border-slate-200 hidden" alt="Logo preview">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Brand Name</label>
+                <input type="text" id="brandName" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="GLOW & CARE">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Primary Color</label>
+                <div class="flex gap-3">
+                  <input type="color" id="primaryColor" class="h-12 w-20 rounded-xl border border-slate-200 cursor-pointer">
+                  <input type="text" id="primaryColorText" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="#db2777">
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">WhatsApp Number</label>
+                <input type="tel" id="whatsappNumber" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="+213776380744">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Shipping Threshold (DZD)</label>
+                <input type="number" id="shippingThreshold" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="10000">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Shipping Cost (DZD)</label>
+                <input type="number" id="shippingCost" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="500">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Footer Text</label>
+              <textarea id="footerText" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="© 2025 GLOW & CARE. All rights reserved."></textarea>
+            </div>
+            <button type="submit" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium px-6 py-3 rounded-xl transition shadow-lg shadow-pink-200">
+              Save Settings
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- User Roles Tab -->
+      <div id="tab-roles" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900">Current User & Roles</h2>
+          </div>
+          <div class="p-6">
+            <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border border-pink-100 mb-6">
+              <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center">
+                  <i data-lucide="user-check" class="w-8 h-8 text-white"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-slate-900" id="currentRoleDisplay">Admin</h3>
+                  <p class="text-slate-600">Full access to all features</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <h4 class="font-semibold text-slate-900">Role Permissions</h4>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5 text-green-600"></i><span class="font-medium">Products CRUD</span></div>
+                  <span class="text-sm text-slate-600">Admin, Editor</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5 text-green-600"></i><span class="font-medium">Categories Management</span></div>
+                  <span class="text-sm text-slate-600">Admin, Editor</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5 text-green-600"></i><span class="font-medium">Hero Banner</span></div>
+                  <span class="text-sm text-slate-600">Admin, Editor</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5 text-green-600"></i><span class="font-medium">Coupons</span></div>
+                  <span class="text-sm text-slate-600">Admin, Editor</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield" class="w-5 h-5 text-red-600"></i><span class="font-medium">Site Settings</span></div>
+                  <span class="text-sm text-slate-600">Admin Only</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3"><i data-lucide="shield" class="w-5 h-5 text-red-600"></i><span class="font-medium">Backup Export/Import</span></div>
+                  <span class="text-sm text-slate-600">Admin Only</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup Tab -->
+      <div id="tab-backup" class="tab-content hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900">Backup & Restore</h2>
+            <p class="text-sm text-slate-500 mt-1">Export or import all your data as JSON</p>
+          </div>
+          <div class="p-6 space-y-6">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+              <h3 class="font-semibold text-blue-900 mb-2 flex items-center gap-2"><i data-lucide="download" class="w-5 h-5"></i>Export Data</h3>
+              <p class="text-sm text-blue-700 mb-4">Download a complete backup of all products, categories, settings, and sales data.</p>
+              <button id="exportJsonBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition">Export JSON Backup</button>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+              <h3 class="font-semibold text-amber-900 mb-2 flex items-center gap-2"><i data-lucide="upload" class="w-5 h-5"></i>Import Data</h3>
+              <p class="text-sm text-amber-700 mb-4">Restore from a previous backup. Warning: This will overwrite all current data.</p>
+              <input type="file" id="importJsonInput" accept=".json" class="hidden">
+              <button id="importJsonBtn" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-6 py-3 rounded-xl transition">Import JSON Backup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div id="productModal" class="hidden fixed inset-0 bg-black/50 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-xl font-bold text-slate-900" id="productModalTitle">Add Product</h3>
+      <button class="closeModal p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="productForm" class="p-6 space-y-5">
+      <input type="hidden" id="productId">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Product Name *</label>
+          <input type="text" id="productName" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Vitamin C Serum">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Image URL *</label>
+          <input type="url" id="productImage" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="https://example.com/product.jpg">
+          <img id="productImagePreview" class="mt-3 w-full h-48 object-cover rounded-xl border border-slate-200 hidden" alt="Preview">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Price (DZD) *</label>
+          <input type="number" id="productPrice" required min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="2500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Stock Quantity *</label>
+          <input type="number" id="productStock" required min="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="50">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Category *</label>
+          <select id="productCategory" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition"></select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+          <textarea id="productDescription" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Product description..."></textarea>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium py-3 rounded-xl transition">Save Product</button>
+        <button type="button" class="closeModal px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="hidden fixed inset-0 bg-black/50 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div class="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-xl font-bold text-slate-900" id="categoryModalTitle">Add Category</h3>
+      <button class="closeModal p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="categoryForm" class="p-6 space-y-5">
+      <input type="hidden" id="categoryId">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Category Name *</label>
+        <input type="text" id="categoryName" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Skincare">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Slug *</label>
+        <input type="text" id="categorySlug" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="skincare">
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium py-3 rounded-xl transition">Save Category</button>
+        <button type="button" class="closeModal px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Coupon Modal -->
+<div id="couponModal" class="hidden fixed inset-0 bg-black/50 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+    <div class="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-xl font-bold text-slate-900" id="couponModalTitle">Add Coupon</h3>
+      <button class="closeModal p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="couponForm" class="p-6 space-y-5">
+      <input type="hidden" id="couponId">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Coupon Code *</label>
+        <input type="text" id="couponCode" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition uppercase" placeholder="WELCOME10">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Discount Type *</label>
+          <select id="couponType" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition">
+            <option value="percent">Percentage (%)</option>
+            <option value="fixed">Fixed (DZD)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Discount Value *</label>
+          <input type="number" id="couponValue" required min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="10">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Usage Limit</label>
+          <input type="number" id="couponLimit" min="1" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition" placeholder="Unlimited">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Expiry Date</label>
+          <input type="date" id="couponExpiry" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition">
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <input type="checkbox" id="couponActive" class="w-5 h-5 text-pink-600 rounded border-slate-300 focus:ring-pink-500" checked>
+        <label for="couponActive" class="text-sm font-medium text-slate-700">Active</label>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-medium py-3 rounded-xl transition">Save Coupon</button>
+        <button type="button" class="closeModal px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden fixed top-4 right-4 z-[60] bg-white border border-slate-200 rounded-xl shadow-2xl px-6 py-4 flex items-center gap-3 max-w-sm">
+  <div id="toastIcon"></div>
+  <p id="toastMessage" class="text-sm font-medium text-slate-900"></p>
+</div>
+
+<script>
+const STORAGE_KEY = 'glowcare_data';
+const SESSION_KEY = 'glowcare_session';
+let DB = null;
+let salesChart = null;
+
+const defaultDB = {
+  products: [
+    {id: 'p1', name: 'Vitamin C Brightening Serum', image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500', price: 3500, stock: 15, category: 'skincare', description: 'Powerful antioxidant serum for radiant skin'},
+    {id: 'p2', name: 'Hydrating Face Cream', image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd8986?w=500', price: 2800, stock: 3, category: 'skincare', description: 'Deep hydration for all skin types'},
+    {id: 'p3', name: 'Rose Toner Mist', image: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500', price: 1800, stock: 8, category: 'skincare', description: 'Refreshing rose water toner'}
+  ],
+  categories: [
+    {id: 'c1', name: 'Skincare', slug: 'skincare'},
+    {id: 'c2', name: 'Makeup', slug: 'makeup'},
+    {id: 'c3', name: 'Hair Care', slug: 'haircare'}
+  ],
+  hero: {
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200',
+    title: 'Welcome to GLOW & CARE',
+    subtitle: 'Discover premium beauty products for your natural glow',
+    btnText: 'Shop Now',
+    btnLink: '#products'
+  },
+  settings: {
+    logo: '',
+    brandName: 'GLOW & CARE',
+    primaryColor: '#db2777',
+    whatsappNumber: '+213776380744',
+    shippingThreshold: 10000,
+    shippingCost: 500,
+    footerText: '© 2025 GLOW & CARE. All rights reserved.'
+  },
+  coupons: [
+    {id: 'cp1', code: 'WELCOME10', type: 'percent', value: 10, limit: 100, used: 0, expiry: '2025-12-31', active: true},
+    {id: 'cp2', code: 'SAVE500', type: 'fixed', value: 500, limit: 50, used: 0, expiry: '2025-12-31', active: true}
+  ],
+  sales: [],
+  analytics: { visitors: 0, whatsappClicks: 0 }
+};
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function loadDB() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      DB = JSON.parse(data);
+      DB = {
+        ...defaultDB,
+        ...DB,
+        settings: {...defaultDB.settings, ...(DB.settings || {})},
+        hero: {...defaultDB.hero, ...(DB.hero || {})},
+        analytics: {...defaultDB.analytics, ...(DB.analytics || {})}
+      };
+    } else {
+      DB = JSON.parse(JSON.stringify(defaultDB));
+      saveDB();
+    }
+  } catch(e) {
+    console.error('DB Load Error:', e);
+    DB = JSON.parse(JSON.stringify(defaultDB));
+    saveDB();
+  }
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+}
+
+function getSession() { return sessionStorage.getItem(SESSION_KEY); }
+function setSession(role) { sessionStorage.setItem(SESSION_KEY, role); }
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const msg = document.getElementById('toastMessage');
+  if (type === 'success') {
+    icon.innerHTML = '<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"><i data-lucide="check" class="w-5 h-5 text-green-600"></i></div>';
+  } else if (type === 'error') {
+    icon.innerHTML = '<div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center"><i data-lucide="x" class="w-5 h-5 text-red-600"></i></div>';
+  } else {
+    icon.innerHTML = '<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i></div>';
+  }
+  msg.textContent = message;
+  toast.classList.remove('hidden');
+  lucide.createIcons();
+  setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+}
+
+function checkAuth() {
+  const role = getSession();
+  if (role) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('userRole').textContent = role;
+    document.getElementById('currentRoleDisplay').textContent = role;
+    if (role === 'Editor') {
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    }
+    renderAll();
+  }
+}
+
+function logout() { clearSession(); location.reload(); }
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const tabEl = document.getElementById(`tab-${tabName}`);
+  if (tabEl) tabEl.classList.remove('hidden');
+  const link = document.querySelector(`[data-tab="${tabName}"]`);
+  if (link) link.classList.add('active');
+  const titles = { overview: 'Overview', products: 'Products', categories: 'Categories', hero: 'Hero Banner', coupons: 'Coupons', lowstock: 'Low Stock', sales: 'Sales Log', analytics: 'Analytics', settings: 'Site Settings', roles: 'User Roles', backup: 'Backup' };
+  document.getElementById('pageTitle').textContent = titles[tabName] || 'Dashboard';
+  if (tabName === 'analytics') renderAnalytics();
+  if (tabName === 'overview') renderOverview();
+  if (window.innerWidth < 1024) document.getElementById('sidebar').classList.add('-translate-x-full');
+}
+
+function renderAll() {
+  renderOverview(); renderProducts(); renderCategories(); renderCoupons();
+  renderLowStock(); renderSales(); renderHero(); renderSettings(); updateLowStockBadge();
+}
+
+function renderOverview() {
+  const lowStockItems = DB.products.filter(p => p.stock <= 5);
+  document.getElementById('statProducts').textContent = DB.products.length;
+  document.getElementById('statLowStock').textContent = lowStockItems.length;
+  document.getElementById('statWhatsapp').textContent = DB.analytics.whatsappClicks || 0;
+  document.getElementById('statVisitors').textContent = DB.analytics.visitors || 0;
+  const lowStockList = document.getElementById('lowStockList');
+  if (lowStockItems.length === 0) {
+    lowStockList.innerHTML = '<p class="text-sm text-slate-500 text-center py-8">No low stock items</p>';
+  } else {
+    lowStockList.innerHTML = lowStockItems.slice(0, 5).map(p => `<div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100"><div class="flex items-center gap-3"><img src="${p.image}" class="w-12 h-12 object-cover rounded-lg" alt="${p.name}"><div><p class="font-medium text-slate-900 text-sm">${p.name}</p><p class="text-xs text-red-600">Only ${p.stock} left</p></div></div></div>`).join('');
+  }
+  const recentSales = DB.sales.slice(-5).reverse();
+  const recentSalesList = document.getElementById('recentSalesList');
+  if (recentSales.length === 0) {
+    recentSalesList.innerHTML = '<p class="text-sm text-slate-500 text-center py-8">No sales yet</p>';
+  } else {
+    recentSalesList.innerHTML = recentSales.map(s => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg"><div><p class="font-medium text-slate-900 text-sm">${s.products.map(p => p.name).join(', ')}</p><p class="text-xs text-slate-500">${new Date(s.date).toLocaleDateString()}</p></div><p class="font-bold text-slate-900">${s.total} DZD</p></div>`).join('');
+  }
+}
+
+function renderProducts() {
+  const tbody = document.getElementById('productsTable');
+  if (!tbody) return;
+  if (DB.products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-slate-500">No products yet.</td></tr>'; return; }
+  tbody.innerHTML = DB.products.map(p => {
+    const cat = DB.categories.find(c => c.slug === p.category);
+    const stockClass = p.stock <= 5 ? 'bg-red-100 text-red-700' : p.stock <= 10 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700';
+    return `<tr class="hover:bg-slate-50 transition"><td class="px-6 py-4"><img src="${p.image}" class="w-12 h-12 object-cover rounded-lg" alt="${p.name}"></td><td class="px-6 py-4"><p class="font-medium text-slate-900">${p.name}</p><p class="text-xs text-slate-500">${p.description || ''}</p></td><td class="px-6 py-4 text-sm text-slate-600">${cat?.name || p.category}</td><td class="px-6 py-4 font-medium text-slate-900">${p.price} DZD</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${stockClass}">${p.stock}</span></td><td class="px-6 py-4 text-right"><button onclick="editProduct('${p.id}')" class="p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="edit-2" class="w-4 h-4 text-slate-600"></i></button><button onclick="deleteProduct('${p.id}')" class="p-2 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i></button></td></tr>`;
+  }).join('');
+  lucide.createIcons();
+  updateCategorySelect();
+}
+
+function updateCategorySelect() {
+  const select = document.getElementById('productCategory');
+  if (select) select.innerHTML = DB.categories.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+}
+
+function renderCategories() {
+  const grid = document.getElementById('categoriesGrid');
+  if (!grid) return;
+  if (DB.categories.length === 0) { grid.innerHTML = '<p class="col-span-full text-center py-12 text-slate-500">No categories yet.</p>'; return; }
+  grid.innerHTML = DB.categories.map(c => {
+    const count = DB.products.filter(p => p.category === c.slug).length;
+    return `<div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition"><div class="flex items-start justify-between mb-3"><div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center"><i data-lucide="folder" class="w-6 h-6 text-pink-600"></i></div><div class="flex gap-2"><button onclick="editCategory('${c.id}')" class="p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="edit-2" class="w-4 h-4 text-slate-600"></i></button><button onclick="deleteCategory('${c.id}')" class="p-2 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i></button></div></div><h4 class="font-bold text-slate-900 mb-1">${c.name}</h4><p class="text-sm text-slate-500 mb-3">/${c.slug}</p><p class="text-xs text-slate-600">${count} products</p></div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+function renderCoupons() {
+  const tbody = document.getElementById('couponsTable');
+  if (!tbody) return;
+  if (DB.coupons.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-slate-500">No coupons yet.</td></tr>'; return; }
+  tbody.innerHTML = DB.coupons.map(c => {
+    const discount = c.type === 'percent' ? `${c.value}%` : `${c.value} DZD`;
+    const expired = c.expiry && new Date(c.expiry) < new Date();
+    const statusClass = !c.active || expired ? 'bg-slate-100 text-slate-600' : 'bg-green-100 text-green-700';
+    const statusText = !c.active ? 'Inactive' : expired ? 'Expired' : 'Active';
+    return `<tr class="hover:bg-slate-50 transition"><td class="px-6 py-4"><span class="font-mono font-bold text-slate-900">${c.code}</span></td><td class="px-6 py-4 font-medium text-slate-900">${discount}</td><td class="px-6 py-4 text-sm text-slate-600">${c.used || 0} / ${c.limit || '∞'}</td><td class="px-6 py-4 text-sm text-slate-600">${c.expiry || 'No expiry'}</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusClass}">${statusText}</span></td><td class="px-6 py-4 text-right"><button onclick="editCoupon('${c.id}')" class="p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="deleteCoupon('${c.id}')" class="p-2 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i></button></td></tr>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+function renderLowStock() {
+  const items = DB.products.filter(p => p.stock <= 5);
+  const tbody = document.getElementById('lowStockTable');
+  if (!tbody) return;
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-slate-500">All products are well stocked!</td></tr>'; return; }
+  tbody.innerHTML = items.map(p => {
+    const cat = DB.categories.find(c => c.slug === p.category);
+    return `<tr><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${p.image}" class="w-10 h-10 object-cover rounded-lg"><span class="font-medium">${p.name}</span></div></td><td class="px-6 py-4 text-sm">${cat?.name || p.category}</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">${p.stock} left</span></td><td class="px-6 py-4 font-medium">${p.price} DZD</td><td class="px-6 py-4 text-right"><button onclick="editProduct('${p.id}')" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-sm rounded-lg">Restock</button></td></tr>`;
+  }).join('');
+}
+
+function renderSales() {
+  const tbody = document.getElementById('salesTable');
+  if (!tbody) return;
+  if (DB.sales.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-slate-500">No sales yet.</td></tr>'; return; }
+  tbody.innerHTML = DB.sales.slice().reverse().map(s => `<tr><td class="px-6 py-4 text-sm">${new Date(s.date).toLocaleString()}</td><td class="px-6 py-4"><p class="font-medium">${s.products.map(p => `${p.name} (x${p.qty})`).join(', ')}</p></td><td class="px-6 py-4 font-bold">${s.total} DZD</td><td class="px-6 py-4 text-sm">${s.coupon || '—'}</td><td class="px-6 py-4"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i data-lucide="message-circle" class="w-3 h-3"></i>WhatsApp</span></td></tr>`).join('');
+  lucide.createIcons();
+}
+
+function renderAnalytics() {
+  const totalRevenue = DB.sales.reduce((sum, s) => sum + s.total, 0);
+  const avgOrder = DB.sales.length > 0 ? Math.round(totalRevenue / DB.sales.length) : 0;
+  const conversion = (DB.analytics.visitors || 0) > 0 ? ((DB.sales.length / DB.analytics.visitors) * 100).toFixed(1) : 0;
+  document.getElementById('conversionRate').textContent = `${conversion}%`;
+  document.getElementById('totalRevenue').textContent = `${totalRevenue.toLocaleString()} DZD`;
+  document.getElementById('avgOrderValue').textContent = `${avgOrder.toLocaleString()} DZD`;
+  const last7Days = [];
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); last7Days.push(d.toISOString().split('T')[0]); }
+  const salesByDay = last7Days.map(day => DB.sales.filter(s => s.date.startsWith(day)).reduce((sum, s) => sum + s.total, 0));
+  if (salesChart) salesChart.destroy();
+  const ctx = document.getElementById('salesChart');
+  if (ctx) {
+    salesChart = new Chart(ctx, { type: 'line', data: { labels: last7Days.map(d => new Date(d).toLocaleDateString('en-US', {month:'short', day:'numeric'})), datasets: [{ label: 'Revenue (DZD)', data: salesByDay, borderColor: '#db2777', backgroundColor: 'rgba(219,39,119,0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+  }
+}
+
+function renderHero() {
+  document.getElementById('heroImage').value = DB.hero.image || '';
+  document.getElementById('heroTitle').value = DB.hero.title || '';
+  document.getElementById('heroSubtitle').value = DB.hero.subtitle || '';
+  document.getElementById('heroBtnText').value = DB.hero.btnText || '';
+  document.getElementById('heroBtnLink').value = DB.hero.btnLink || '';
+  const preview = document.getElementById('heroPreview');
+  if (DB.hero.image) { preview.src = DB.hero.image; preview.classList.remove('hidden'); }
+}
+
+function renderSettings() {
+  document.getElementById('siteLogo').value = DB.settings.logo || '';
+  document.getElementById('brandName').value = DB.settings.brandName || '';
+  document.getElementById('primaryColor').value = DB.settings.primaryColor || '#db2777';
+  document.getElementById('primaryColorText').value = DB.settings.primaryColor || '#db2777';
+  document.getElementById('whatsappNumber').value = DB.settings.whatsappNumber || '';
+  document.getElementById('shippingThreshold').value = DB.settings.shippingThreshold || 10000;
+  document.getElementById('shippingCost').value = DB.settings.shippingCost || 500;
+  document.getElementById('footerText').value = DB.settings.footerText || '';
+  const logoPreview = document.getElementById('logoPreview');
+  if (DB.settings.logo) { logoPreview.src = DB.settings.logo; logoPreview.classList.remove('hidden'); }
+  else { logoPreview.classList.add('hidden'); }
+}
+
+function updateLowStockBadge() {
+  const count = DB.products.filter(p => p.stock <= 5).length;
+  const badge = document.getElementById('lowStockBadge');
+  if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+  else { badge.classList.add('hidden'); }
+}
+
+// CRUD functions
+function editProduct(id) {
+  const p = DB.products.find(x => x.id === id);
+  if (p) {
+    document.getElementById('productModalTitle').textContent = 'Edit Product';
+    document.getElementById('productId').value = p.id;
+    document.getElementById('productName').value = p.name;
+    document.getElementById('productImage').value = p.image;
+    document.getElementById('productPrice').value = p.price;
+    document.getElementById('productStock').value = p.stock;
+    document.getElementById('productCategory').value = p.category;
+    document.getElementById('productDescription').value = p.description || '';
+    document.getElementById('productImagePreview').src = p.image;
+    document.getElementById('productImagePreview').classList.remove('hidden');
+    document.getElementById('productModal').classList.remove('hidden');
+    updateCategorySelect();
+  }
+}
+
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  DB.products = DB.products.filter(p => p.id !== id);
+  saveDB(); renderProducts(); renderOverview(); updateLowStockBadge();
+  showToast('Product deleted');
+}
+
+function editCategory(id) {
+  const c = DB.categories.find(x => x.id === id);
+  if (c) {
+    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+    document.getElementById('categoryId').value = c.id;
+    document.getElementById('categoryName').value = c.name;
+    document.getElementById('categorySlug').value = c.slug;
+    document.getElementById('categoryModal').classList.remove('hidden');
+  }
+}
+
+function deleteCategory(id) {
+  const cat = DB.categories.find(c => c.id === id);
+  const count = DB.products.filter(p => p.category === cat?.slug).length;
+  if (count > 0) { showToast(`Cannot delete: ${count} products use this category`, 'error'); return; }
+  if (!confirm('Delete this category?')) return;
+  DB.categories = DB.categories.filter(c => c.id !== id);
+  saveDB(); renderCategories();
+  showToast('Category deleted');
+}
+
+function editCoupon(id) {
+  const c = DB.coupons.find(x => x.id === id);
+  if (c) {
+    document.getElementById('couponModalTitle').textContent = 'Edit Coupon';
+    document.getElementById('couponId').value = c.id;
+    document.getElementById('couponCode').value = c.code;
+    document.getElementById('couponType').value = c.type;
+    document.getElementById('couponValue').value = c.value;
+    document.getElementById('couponLimit').value = c.limit || '';
+    document.getElementById('couponExpiry').value = c.expiry || '';
+    document.getElementById('couponActive').checked = c.active;
+    document.getElementById('couponModal').classList.remove('hidden');
+  }
+}
+
+function deleteCoupon(id) {
+  if (!confirm('Delete this coupon?')) return;
+  DB.coupons = DB.coupons.filter(c => c.id !== id);
+  saveDB(); renderCoupons();
+  showToast('Coupon deleted');
+}
+
+// Event Listeners
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const role = document.getElementById('roleSelect').value;
+  const password = document.getElementById('passwordInput').value;
+  if ((role === 'Admin' && password === 'admin123') || (role === 'Editor' && password === 'editor123')) {
+    setSession(role); checkAuth();
+  } else {
+    document.getElementById('loginError').textContent = 'Invalid password';
+    document.getElementById('loginError').classList.remove('hidden');
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('-translate-x-full'));
+
+document.querySelectorAll('.sidebar-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); switchTab(e.currentTarget.dataset.tab); }));
+document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', () => document.querySelectorAll('[id$="Modal"]').forEach(m => m.classList.add('hidden'))));
+
+document.getElementById('addProductBtn').addEventListener('click', () => {
+  document.getElementById('productModalTitle').textContent = 'Add Product';
+  document.getElementById('productForm').reset();
+  document.getElementById('productId').value = '';
+  document.getElementById('productImagePreview').classList.add('hidden');
+  document.getElementById('productModal').classList.remove('hidden');
+  updateCategorySelect();
+});
+
+document.getElementById('addCategoryBtn').addEventListener('click', () => {
+  document.getElementById('categoryModalTitle').textContent = 'Add Category';
+  document.getElementById('categoryForm').reset();
+  document.getElementById('categoryId').value = '';
+  document.getElementById('categoryModal').classList.remove('hidden');
+});
+
+document.getElementById('addCouponBtn').addEventListener('click', () => {
+  document.getElementById('couponModalTitle').textContent = 'Add Coupon';
+  document.getElementById('couponForm').reset();
+  document.getElementById('couponId').value = '';
+  document.getElementById('couponActive').checked = true;
+  document.getElementById('couponModal').classList.remove('hidden');
+});
+
+document.getElementById('productForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = document.getElementById('productId').value || genId();
+  const product = { id, name: document.getElementById('productName').value, image: document.getElementById('productImage').value, price: parseFloat(document.getElementById('productPrice').value), stock: parseInt(document.getElementById('productStock').value), category: document.getElementById('productCategory').value, description: document.getElementById('productDescription').value };
+  const idx = DB.products.findIndex(p => p.id === id);
+  if (idx >= 0) { DB.products[idx] = product; showToast('Product updated'); }
+  else { DB.products.push(product); showToast('Product added'); }
+  saveDB(); renderProducts(); renderOverview(); updateLowStockBadge();
+  document.getElementById('productModal').classList.add('hidden');
+});
+
+document.getElementById('categoryForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = document.getElementById('categoryId').value || genId();
+  const category = { id, name: document.getElementById('categoryName').value, slug: document.getElementById('categorySlug').value.toLowerCase().replace(/\s+/g, '-') };
+  const idx = DB.categories.findIndex(c => c.id === id);
+  if (idx >= 0) { DB.categories[idx] = category; showToast('Category updated'); }
+  else { DB.categories.push(category); showToast('Category added'); }
+  saveDB(); renderCategories();
+  document.getElementById('categoryModal').classList.add('hidden');
+});
+
+document.getElementById('couponForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = document.getElementById('couponId').value || genId();
+  const coupon = { id, code: document.getElementById('couponCode').value.toUpperCase(), type: document.getElementById('couponType').value, value: parseFloat(document.getElementById('couponValue').value), limit: document.getElementById('couponLimit').value ? parseInt(document.getElementById('couponLimit').value) : null, expiry: document.getElementById('couponExpiry').value || null, active: document.getElementById('couponActive').checked, used: 0 };
+  const idx = DB.coupons.findIndex(c => c.id === id);
+  if (idx >= 0) { coupon.used = DB.coupons[idx].used; DB.coupons[idx] = coupon; showToast('Coupon updated'); }
+  else { DB.coupons.push(coupon); showToast('Coupon added'); }
+  saveDB(); renderCoupons();
+  document.getElementById('couponModal').classList.add('hidden');
+});
+
+document.getElementById('categoryName').addEventListener('input', (e) => {
+  document.getElementById('categorySlug').value = e.target.value.toLowerCase().replace(/\s+/g, '-');
+});
+
+document.getElementById('heroForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  DB.hero = { image: document.getElementById('heroImage').value, title: document.getElementById('heroTitle').value, subtitle: document.getElementById('heroSubtitle').value, btnText: document.getElementById('heroBtnText').value, btnLink: document.getElementById('heroBtnLink').value };
+  saveDB(); showToast('Hero banner updated');
+});
+
+document.getElementById('settingsForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  DB.settings = {
+    logo: document.getElementById('siteLogo').value,
+    brandName: document.getElementById('brandName').value,
+    primaryColor: document.getElementById('primaryColor').value,
+    whatsappNumber: document.getElementById('whatsappNumber').value,
+    shippingThreshold: parseInt(document.getElementById('shippingThreshold').value) || 10000,
+    shippingCost: parseInt(document.getElementById('shippingCost').value) || 500,
+    footerText: document.getElementById('footerText').value
+  };
+  saveDB();
+  showToast('Settings updated successfully');
+});
+
+document.getElementById('exportJsonBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `glowcare-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('Backup exported');
+});
+
+document.getElementById('importJsonBtn').addEventListener('click', () => document.getElementById('importJsonInput').click());
+
+document.getElementById('importJsonInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (confirm('Overwrite all data?')) { DB = imported; saveDB(); renderAll(); showToast('Data imported'); }
+    } catch (err) { showToast('Invalid JSON', 'error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('exportSalesCsv').addEventListener('click', () => {
+  if (DB.sales.length === 0) { showToast('No sales data', 'error'); return; }
+  let csv = 'Date,Products,Total,Coupon\n';
+  DB.sales.forEach(s => { csv += `"${new Date(s.date).toLocaleString()}","${s.products.map(p => `${p.name} x${p.qty}`).join('; ')}","${s.total}","${s.coupon || ''}"\n`; });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sales-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('CSV exported');
+});
+
+// Init
+loadDB();
+checkAuth();
+lucide.createIcons();
+
+if (!sessionStorage.getItem('visited')) {
+  DB.analytics.visitors = (DB.analytics.visitors || 0) + 1;
+  saveDB();
+  sessionStorage.setItem('visited', 'true');
+}
+</script>
+</body>
+</html>

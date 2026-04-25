@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLOW & CARE | Beauty & Cosmetics Store</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+    
+    :root {
+        --rose-gold: #b76e79;
+        --light-pink: #ffe4ec;
+        --deep-rose: #9f5f68;
+        --dark-text: #2d2d2d;
+    }
+    
+    * {
+        font-family: 'Poppins', sans-serif;
+        scroll-behavior: smooth;
+    }
+    
+    .font-display {
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 50%, #ffd4e5 100%);
+    }
+    
+    .rose-gradient {
+        background: linear-gradient(135deg, var(--rose-gold) 0%, #d4a5ac 100%);
+    }
+    
+    .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(183, 110, 121, 0.2);
+    }
+    
+    .btn-glow {
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(183, 110, 121, 0.3);
+    }
+    
+    .btn-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(183, 110, 121, 0.4);
+    }
+    
+    .cart-badge {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .slide-in-right {
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.4s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    #toast {
+        animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from { transform: translateY(-100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div class="rose-gradient text-white text-xs py-2 text-center">
+        <p><i class="fa-solid fa-truck-fast mr-2"></i>Free Shipping on Orders Over 10,000 DZD | <span id="analytics-visitors">0</span> Happy Customers Today</p>
+    </div>
+
+    <header class="bg-white sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 md:h-20">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-spa text-3xl text-[#b76e79]"></i>
+                        <h1 class="font-display text-2xl md:text-3xl font-bold text-[#b76e79]">GLOW & CARE</h1>
+                    </div>
+                    <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+                        <a href="#hero" class="hover:text-[#b76e79] transition">Home</a>
+                        <a href="#categories" class="hover:text-[#b76e79] transition">Categories</a>
+                        <a href="#products" class="hover:text-[#b76e79] transition">Shop</a>
+                        <a href="#contact" class="hover:text-[#b76e79] transition">Contact</a>
+                    </nav>
+                </div>
+                
+                <div class="flex items-center gap-3 md:gap-5">
+                    <div class="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-64">
+                        <i class="fa-solid fa-search text-gray-400 mr-2"></i>
+                        <input type="text" id="search-input" placeholder="Search products..." class="bg-transparent outline-none w-full text-sm">
+                    </div>
+                    <button id="cart-btn" class="relative p-2 hover:bg-gray-100 rounded-full transition">
+                        <i class="fa-solid fa-bag-shopping text-xl text-gray-700"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-[#b76e79] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="lg:hidden p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="md:hidden pb-3">
+                <div class="flex items-center bg-gray-100 rounded-full px-4 py-2">
+                    <i class="fa-solid fa-search text-gray-400 mr-2"></i>
+                    <input type="text" id="search-input-mobile" placeholder="Search products..." class="bg-transparent outline-none w-full text-sm">
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden lg:hidden border-t">
+            <nav class="flex flex-col py-2">
+                <a href="#hero" class="px-4 py-3 hover:bg-gray-50">Home</a>
+                <a href="#categories" class="px-4 py-3 hover:bg-gray-50">Categories</a>
+                <a href="#products" class="px-4 py-3 hover:bg-gray-50">Shop</a>
+                <a href="#contact" class="px-4 py-3 hover:bg-gray-50">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero" class="gradient-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="order-2 md:order-1 fade-in">
+                    <span id="hero-badge" class="inline-block bg-white text-[#b76e79] text-xs font-semibold px-4 py-1.5 rounded-full mb-4 shadow-sm">
+                        New Collection 2024
+                    </span>
+                    <h2 id="hero-title" class="font-display text-4xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                        Unveil Your Natural Glow
+                    </h2>
+                    <p id="hero-subtitle" class="text-gray-600 text-base md:text-lg mb-6 leading-relaxed">
+                        Discover premium skincare and cosmetics designed to enhance your beauty. Cruelty-free, dermatologist tested, made for you.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#products" class="btn-glow rose-gradient text-white px-8 py-3 rounded-full font-semibold text-sm inline-flex items-center gap-2">
+                            Shop Now <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <button class="bg-white text-[#b76e79] px-8 py-3 rounded-full font-semibold text-sm border-2 border-[#b76e79] hover:bg-[#b76e79] hover:text-white transition">
+                            View Deals
+                        </button>
+                    </div>
+                    <div class="flex gap-8 mt-8">
+                        <div>
+                            <p class="text-2xl font-bold text-[#b76e79]">500+</p>
+                            <p class="text-xs text-gray-600">Products</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-[#b76e79]">10K+</p>
+                            <p class="text-xs text-gray-600">Happy Clients</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-[#b76e79]">4.9★</p>
+                            <p class="text-xs text-gray-600">Rating</p>
+                        </div>
+                    </div>
+                <div class="order-1 md:order-2">
+                    <img id="hero-image" src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop" alt="Beauty Products" class="rounded-3xl shadow-2xl w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="categories" class="py-12 md:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h3 class="font-display text-3xl md:text-4xl font-bold mb-3">Shop by Category</h3>
+                <p class="text-gray-600">Find exactly what your skin needs</p>
+            </div>
+            <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="py-12 md:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+                <div>
+                    <h3 class="font-display text-3xl md:text-4xl font-bold mb-2">Featured Products</h3>
+                    <p class="text-gray-600 text-sm">Handpicked beauty essentials for you</p>
+                </div>
+                <div class="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
+                    <button class="filter-btn active whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium bg-[#b76e79] text-white" data-category="all">
+                        All Products
+                    </button>
+                    <div id="filter-buttons" class="flex gap-2"></div>
+                </div>
+            </div>
+            
+            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            </div>
+            
+            <div id="no-products" class="hidden text-center py-16">
+                <i class="fa-solid fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No products found</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+                <div class="fade-in">
+                    <div class="w-14 h-14 rose-gradient rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-truck text-white text-xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Free Shipping</h4>
+                    <p class="text-xs text-gray-600">On orders 10,000 DZD+</p>
+                </div>
+                <div class="fade-in">
+                    <div class="w-14 h-14 rose-gradient rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-leaf text-white text-xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">100% Natural</h4>
+                    <p class="text-xs text-gray-600">Organic ingredients</p>
+                </div>
+                <div class="fade-in">
+                    <div class="w-14 h-14 rose-gradient rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">Secure Payment</h4>
+                    <p class="text-xs text-gray-600">100% protected</p>
+                </div>
+                <div class="fade-in">
+                    <div class="w-14 h-14 rose-gradient rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-headset text-white text-xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-1 text-sm md:text-base">24/7 Support</h4>
+                    <p class="text-xs text-gray-600">Always here to help</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-gray-900 text-gray-300 pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-spa text-2xl text-[#b76e79]"></i>
+                        <h4 class="font-display text-xl font-bold text-white">GLOW & CARE</h4>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">Your trusted beauty destination for premium cosmetics and skincare in Algeria.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#b76e79] transition"><i class="fa-brands fa-instagram text-sm"></i></a>
+                        <a href="#" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#b76e79] transition"><i class="fa-brands fa-facebook-f text-sm"></i></a>
+                        <a href="#" class="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#b76e79] transition"><i class="fa-brands fa-tiktok text-sm"></i></a>
+                    </div>
+                <div>
+                    <h5 class="font-semibold text-white mb-4 text-sm">Quick Links</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#products" class="hover:text-[#b76e79] transition">All Products</a></li>
+                        <li><a href="#categories" class="hover:text-[#b76e79] transition">Categories</a></li>
+                        <li><a href="#" class="hover:text-[#b76e79] transition">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-[#b76e79] transition">Best Sellers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white mb-4 text-sm">Customer Care</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-[#b76e79] transition">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-[#b76e79] transition">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-[#b76e79] transition">Returns Policy</a></li>
+                        <li><a href="#" class="hover:text-[#b76e79] transition">FAQs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white mb-4 text-sm">Contact</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-location-dot mt-1 text-[#b76e79]"></i><span>Tlemcen, Imama</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-brands fa-whatsapp mt-1 text-[#b76e79]"></i><span id="footer-phone">+213 776 380 744</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-envelope mt-1 text-[#b76e79]"></i><span>Houbadismatmohamed@gmail.dz</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
+                <p>&copy; 2024 GLOW & CARE. All rights reserved. Made with <i class="fa-solid fa-heart text-[#b76e79]"></i> in Algeria</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 w-full sm:w-96 h-full bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between p-5 border-b">
+            <h3 class="font-display text-2xl font-bold">Your Cart</h3>
+            <button id="close-cart" class="p-2 hover:bg-gray-100 rounded-full"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+        <div id="cart-empty" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <i class="fa-solid fa-bag-shopping text-6xl text-gray-200 mb-4"></i>
+            <p class="text-gray-500 mb-4">Your cart is empty</p>
+            <button id="continue-shopping" class="rose-gradient text-white px-6 py-2.5 rounded-full text-sm font-semibold">Continue Shopping</button>
+        </div>
+        <div id="cart-footer" class="border-t p-5 space-y-4 bg-gray-50">
+            <div class="flex items-center gap-2">
+                <input type="text" id="coupon-input" placeholder="Coupon code" class="flex-1 px-4 py-2 border rounded-lg text-sm outline-none focus:border-[#b76e79]">
+                <button id="apply-coupon" class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700">Apply</button>
+            </div>
+            <div id="discount-row" class="hidden flex justify-between text-sm text-green-600"><span>Discount</span><span id="discount-amount">-0 DZD</span></div>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-600">Subtotal</span><span id="subtotal" class="font-semibold">0 DZD</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Shipping</span><span id="shipping" class="font-semibold">Calculated at checkout</span></div>
+            </div>
+            <div class="flex justify-between text-lg font-bold pt-2 border-t"><span>Total</span><span id="total" class="text-[#b76e79]">0 DZD</span></div>
+            <button id="whatsapp-checkout" class="w-full rose-gradient text-white py-3.5 rounded-full font-semibold flex items-center justify-center gap-2 btn-glow">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Checkout via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        (function() {
+            const STORAGE_KEY = 'glowcare_data';
+            const CART_KEY = 'glowcare_cart';
+            const ANALYTICS_KEY = 'glowcare_analytics';
+
+            let state = {
+                products: [],
+                categories: [],
+                cart: [],
+                hero: {},
+                settings: {},
+                currentFilter: 'all',
+                searchQuery: '',
+                appliedCoupon: null,
+                analytics: { visitors: 0, whatsappClicks: 0 }
+            };
+
+            let COUPONS = {};
+
+            function loadData() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const db = JSON.parse(raw);
+                        state.products = db.products || [];
+                        state.categories = db.categories || [];
+                        state.hero = db.hero || {};
+                        state.settings = db.settings || {};
+                        if (db.coupons) {
+                            COUPONS = {};
+                            db.coupons.forEach(c => {
+                                if (c.active && (!c.expiry || new Date(c.expiry) >= new Date()) && (!c.limit || c.used < c.limit)) {
+                                    COUPONS[c.code] = { type: c.type, value: c.value };
+                                }
+                            });
+                        }
+                    } else {
+                        state.products = [
+                            { id: '1', name: 'Hydrating Face Serum', category: 'skincare', price: 3500, stock: 15, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&h=600&fit=crop', description: 'Vitamin C + Hyaluronic Acid' },
+                            { id: '2', name: 'Matte Lipstick Rose', category: 'makeup', price: 1800, stock: 8, image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=600&h=600&fit=crop', description: 'Long-lasting velvet finish' },
+                            { id: '3', name: 'Argan Oil Shampoo', category: 'haircare', price: 2200, stock: 0, image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&h=600&fit=crop', description: 'Moroccan argan oil formula' },
+                            { id: '4', name: 'Night Repair Cream', category: 'skincare', price: 4200, stock: 12, image: 'https://images.unsplash.com/photo-1570194065650-d99fb4abbd23?w=600&h=600&fit=crop', description: 'Advanced anti-aging' },
+                            { id: '5', name: 'Eyeshadow Palette', category: 'makeup', price: 5500, stock: 5, image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=600&fit=crop', description: '18 stunning shades' },
+                            { id: '6', name: 'Rose Perfume 50ml', category: 'fragrance', price: 6800, stock: 20, image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&h=600&fit=crop', description: 'Elegant floral scent' },
+                            { id: '7', name: 'Facial Cleanser', category: 'skincare', price: 2100, stock: 3, image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=600&h=600&fit=crop', description: 'Gentle foam formula' },
+                            { id: '8', name: 'Makeup Brush Set', category: 'tools', price: 3900, stock: 7, image: 'https://images.unsplash.com/photo-1631214540553-ff044a3ff1d4?w=600&h=600&fit=crop', description: '12-piece pro set' }
+                        ];
+                        state.categories = [
+                            { id: 'skincare', name: 'Skincare', slug: 'skincare', icon: 'fa-droplet', image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop' },
+                            { id: 'makeup', name: 'Makeup', slug: 'makeup', icon: 'fa-palette', image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=400&fit=crop' },
+                            { id: 'haircare', name: 'Hair Care', slug: 'haircare', icon: 'fa-wind', image: 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=400&h=400&fit=crop' },
+                            { id: 'fragrance', name: 'Fragrance', slug: 'fragrance', icon: 'fa-spray-can-sparkles', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop' },
+                            { id: 'tools', name: 'Tools', slug: 'tools', icon: 'fa-wand-magic-sparkles', image: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=400&h=400&fit=crop' },
+                            { id: 'giftsets', name: 'Gift Sets', slug: 'giftsets', icon: 'fa-gift', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&h=400&fit=crop' }
+                        ];
+                        state.hero = {
+                            badge: 'New Collection 2024',
+                            title: 'Unveil Your Natural Glow',
+                            subtitle: 'Discover premium skincare and cosmetics designed to enhance your beauty.',
+                            image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop'
+                        };
+                        state.settings = { whatsapp: '+213776380744', shippingThreshold: 10000, shippingCost: 500 };
+                    }
+                } catch(e) {
+                    console.error('Load error', e);
+                }
+                state.cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+                state.analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY)) || { visitors: 0, whatsappClicks: 0 };
+            }
+
+            function saveCart() {
+                localStorage.setItem(CART_KEY, JSON.stringify(state.cart));
+            }
+
+            function saveAnalytics() {
+                localStorage.setItem(ANALYTICS_KEY, JSON.stringify(state.analytics));
+            }
+
+            function trackVisitor() {
+                const today = new Date().toDateString();
+                const lastVisit = localStorage.getItem('glowcare_last_visit');
+                if (lastVisit !== today) {
+                    state.analytics.visitors++;
+                    localStorage.setItem('glowcare_last_visit', today);
+                    saveAnalytics();
+                }
+            }
+
+            function updateAnalytics() {
+                document.getElementById('analytics-visitors').textContent = state.analytics.visitors.toLocaleString();
+                document.getElementById('footer-phone').textContent = state.settings.whatsapp || '+213776380744';
+            }
+
+            function renderHero() {
+                document.getElementById('hero-badge').textContent = state.hero.badge || 'New Collection';
+                document.getElementById('hero-title').textContent = state.hero.title || 'Unveil Your Natural Glow';
+                document.getElementById('hero-subtitle').textContent = state.hero.subtitle || '';
+                document.getElementById('hero-image').src = state.hero.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800';
+            }
+
+            function renderCategories() {
+                const grid = document.getElementById('categories-grid');
+                grid.innerHTML = state.categories.map(cat => `
+                    <button onclick="window.filterByCategory('${cat.slug || cat.id}')" class="card-hover bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-xl">
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden rose-gradient flex items-center justify-center">
+                            ${cat.image ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover">` : `<i class="fa-solid ${cat.icon || 'fa-folder'} text-white text-2xl"></i>`}
+                        </div>
+                        <h4 class="font-semibold text-sm">${cat.name}</h4>
+                    </button>
+                `).join('');
+            }
+
+            function renderFilters() {
+                const container = document.getElementById('filter-buttons');
+                container.innerHTML = state.categories.map(cat => `
+                    <button class="filter-btn whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-category="${cat.slug || cat.id}">
+                        ${cat.name}
+                    </button>
+                `).join('');
+            }
+
+            function renderProducts() {
+                let filtered = state.products;
+                if (state.currentFilter !== 'all') {
+                    filtered = filtered.filter(p => p.category === state.currentFilter);
+                }
+                if (state.searchQuery) {
+                    filtered = filtered.filter(p => 
+                        p.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                        (p.description && p.description.toLowerCase().includes(state.searchQuery.toLowerCase()))
+                    );
+                }
+                
+                const grid = document.getElementById('products-grid');
+                const noProducts = document.getElementById('no-products');
+                
+                if (filtered.length === 0) {
+                    grid.innerHTML = '';
+                    noProducts.classList.remove('hidden');
+                    return;
+                }
+                
+                noProducts.classList.add('hidden');
+                grid.innerHTML = filtered.map(p => {
+                    const stockBadge = getStockBadge(p.stock);
+                    const inCart = state.cart.find(item => item.id === p.id);
+                    return `
+                        <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-sm fade-in">
+                            <div class="relative aspect-square bg-gray-100">
+                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover" loading="lazy">
+                                ${stockBadge}
+                                ${p.stock === 0 ? '<div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><span class="bg-white px-4 py-2 rounded-full text-sm font-semibold">Out of Stock</span></div>' : ''}
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs text-gray-500 uppercase">${state.categories.find(c => (c.slug || c.id) === p.category)?.name || ''}</span>
+                                <h4 class="font-semibold text-sm md:text-base mt-1 mb-1 line-clamp-2">${p.name}</h4>
+                                <p class="text-xs text-gray-600 mb-3 line-clamp-1">${p.description || ''}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg md:text-xl font-bold text-[#b76e79]">${p.price.toLocaleString()} DZD</span>
+                                    <button onclick="window.addToCart('${p.id}')" ${p.stock === 0 ? 'disabled' : ''} class="rose-gradient text-white w-10 h-10 rounded-full flex items-center justify-center btn-glow disabled:opacity-50 disabled:cursor-not-allowed">
+                                        ${inCart ? `<i class="fa-solid fa-check"></i>` : `<i class="fa-solid fa-plus"></i>`}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function getStockBadge(stock) {
+                if (stock === 0) return '';
+                if (stock <= 5) return `<span class="absolute top-3 left-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold">Only ${stock} left</span>`;
+                if (stock <= 10) return `<span class="absolute top-3 left-3 bg-orange-500 text-white text-xs px-3 py-1 rounded-full font-semibold">Low Stock</span>`;
+                return `<span class="absolute top-3 left-3 bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold">In Stock</span>`;
+            }
+
+            window.addToCart = function(productId) {
+                const product = state.products.find(p => p.id === productId);
+                if (!product || product.stock === 0) return;
+                const cartItem = state.cart.find(item => item.id === productId);
+                if (cartItem) {
+                    if (cartItem.quantity < product.stock) {
+                        cartItem.quantity++;
+                        showToast(`${product.name} quantity increased`);
+                    } else {
+                        showToast('Maximum stock reached', 'error');
+                        return;
+                    }
+                } else {
+                    state.cart.push({ ...product, quantity: 1 });
+                    showToast(`${product.name} added to cart`);
+                }
+                saveCart();
+                updateCartUI();
+                renderProducts();
+            };
+
+            window.updateCartQuantity = function(productId, change) {
+                const cartItem = state.cart.find(item => item.id === productId);
+                const product = state.products.find(p => p.id === productId);
+                if (!cartItem) return;
+                cartItem.quantity += change;
+                if (cartItem.quantity <= 0) {
+                    state.cart = state.cart.filter(item => item.id !== productId);
+                    showToast('Item removed from cart');
+                } else if (cartItem.quantity > product.stock) {
+                    cartItem.quantity = product.stock;
+                    showToast('Maximum stock reached', 'error');
+                }
+                saveCart();
+                updateCartUI();
+                renderProducts();
+            };
+
+            window.removeFromCart = function(productId) {
+                state.cart = state.cart.filter(item => item.id !== productId);
+                saveCart();
+                updateCartUI();
+                renderProducts();
+                showToast('Item removed');
+            };
+
+            function updateCartUI() {
+                const cartItems = document.getElementById('cart-items');
+                const cartEmpty = document.getElementById('cart-empty');
+                const cartFooter = document.getElementById('cart-footer');
+                const cartCount = document.getElementById('cart-count');
+                const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+                if (totalItems > 0) cartCount.classList.add('cart-badge');
+                else cartCount.classList.remove('cart-badge');
+                
+                if (state.cart.length === 0) {
+                    cartItems.classList.add('hidden');
+                    cartEmpty.classList.remove('hidden');
+                    cartFooter.classList.add('hidden');
+                    return;
+                }
+                cartItems.classList.remove('hidden');
+                cartEmpty.classList.add('hidden');
+                cartFooter.classList.remove('hidden');
+                
+                cartItems.innerHTML = state.cart.map(item => `
+                    <div class="flex gap-3 pb-4 border-b last:border-0">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm mb-1">${item.name}</h4>
+                            <p class="text-[#b76e79] font-bold text-sm mb-2">${item.price.toLocaleString()} DZD</p>
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.updateCartQuantity('${item.id}', -1)" class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <span class="w-8 text-center text-sm font-semibold">${item.quantity}</span>
+                                <button onclick="window.updateCartQuantity('${item.id}', 1)" class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                                <button onclick="window.removeFromCart('${item.id}')" class="ml-auto text-red-500 hover:text-red-700"><i class="fa-solid fa-trash text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                updateCartTotals();
+            }
+
+            function updateCartTotals() {
+                const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                let discount = 0;
+                if (state.appliedCoupon && COUPONS[state.appliedCoupon]) {
+                    const coupon = COUPONS[state.appliedCoupon];
+                    discount = coupon.type === 'percent' ? subtotal * (coupon.value / 100) : coupon.value;
+                    document.getElementById('discount-row').classList.remove('hidden');
+                    document.getElementById('discount-amount').textContent = `-${Math.round(discount).toLocaleString()} DZD`;
+                } else {
+                    document.getElementById('discount-row').classList.add('hidden');
+                }
+                const total = subtotal - discount;
+                const shipping = subtotal >= (state.settings.shippingThreshold || 10000) ? 0 : (state.settings.shippingCost || 500);
+                document.getElementById('subtotal').textContent = `${subtotal.toLocaleString()} DZD`;
+                document.getElementById('shipping').textContent = shipping === 0 ? 'FREE' : `${shipping.toLocaleString()} DZD`;
+                document.getElementById('total').textContent = `${(total + shipping).toLocaleString()} DZD`;
+            }
+
+            function applyCoupon() {
+                const input = document.getElementById('coupon-input');
+                const code = input.value.trim().toUpperCase();
+                if (!code) return showToast('Please enter a coupon code', 'error');
+                if (COUPONS[code]) {
+                    state.appliedCoupon = code;
+                    updateCartTotals();
+                    showToast(`Coupon ${code} applied!`);
+                    input.value = '';
+                } else {
+                    showToast('Invalid coupon code', 'error');
+                }
+            }
+
+            window.filterByCategory = function(categoryId) {
+                state.currentFilter = categoryId;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active', 'bg-[#b76e79]', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-700');
+                    if (btn.dataset.category === categoryId) {
+                        btn.classList.add('active', 'bg-[#b76e79]', 'text-white');
+                        btn.classList.remove('bg-gray-100', 'text-gray-700');
+                    }
+                });
+                renderProducts();
+                document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+            };
+
+            function checkoutWhatsApp() {
+                if (state.cart.length === 0) return showToast('Your cart is empty', 'error');
+                state.analytics.whatsappClicks++;
+                saveAnalytics();
+                const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                let discount = 0;
+                if (state.appliedCoupon && COUPONS[state.appliedCoupon]) {
+                    const coupon = COUPONS[state.appliedCoupon];
+                    discount = coupon.type === 'percent' ? subtotal * (coupon.value / 100) : coupon.value;
+                }
+                const shipping = subtotal >= (state.settings.shippingThreshold || 10000) ? 0 : (state.settings.shippingCost || 500);
+                const total = subtotal - discount + shipping;
+                let message = `🌸 *New Order - GLOW & CARE* 🌸%0A%0A*Order Details:*%0A`;
+                state.cart.forEach((item, i) => {
+                    message += `${i + 1}. ${item.name}%0A   Qty: ${item.quantity} x ${item.price.toLocaleString()} DZD = ${(item.price * item.quantity).toLocaleString()} DZD%0A`;
+                });
+                message += `%0A*Summary:*%0A`;
+                message += `Subtotal: ${subtotal.toLocaleString()} DZD%0A`;
+                if (discount > 0) message += `Discount (${state.appliedCoupon}): -${Math.round(discount).toLocaleString()} DZD%0A`;
+                message += `Shipping: ${shipping === 0 ? 'FREE' : shipping.toLocaleString() + ' DZD'}%0A`;
+                message += `*Total: ${total.toLocaleString()} DZD*%0A%0APlease confirm my order. Thank you! 💖`;
+                const phone = (state.settings.whatsapp || '213555123456').replace(/[^0-9]/g, '');
+                window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-message').textContent = message;
+                toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-sm font-medium ${type === 'error' ? 'bg-red-500' : 'bg-gray-900'} text-white`;
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 3000);
+            }
+
+            function toggleCart() {
+                document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
+                document.getElementById('cart-overlay').classList.toggle('hidden');
+            }
+
+            function init() {
+                loadData();
+                trackVisitor();
+                renderHero();
+                renderCategories();
+                renderProducts();
+                renderFilters();
+                updateCartUI();
+                updateAnalytics();
+
+                document.getElementById('cart-btn').addEventListener('click', toggleCart);
+                document.getElementById('close-cart').addEventListener('click', toggleCart);
+                document.getElementById('cart-overlay').addEventListener('click', toggleCart);
+                document.getElementById('continue-shopping').addEventListener('click', toggleCart);
+                document.getElementById('whatsapp-checkout').addEventListener('click', checkoutWhatsApp);
+                document.getElementById('apply-coupon').addEventListener('click', applyCoupon);
+                document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                    document.getElementById('mobile-menu').classList.toggle('hidden');
+                });
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    state.searchQuery = e.target.value;
+                    renderProducts();
+                });
+                document.getElementById('search-input-mobile').addEventListener('input', (e) => {
+                    state.searchQuery = e.target.value;
+                    renderProducts();
+                });
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('filter-btn') || e.target.closest('.filter-btn')) {
+                        const btn = e.target.classList.contains('filter-btn') ? e.target : e.target.closest('.filter-btn');
+                        window.filterByCategory(btn.dataset.category);
+                    }
+                });
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('mobile-menu').classList.add('hidden');
+                    });
+                });
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
